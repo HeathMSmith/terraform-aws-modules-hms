@@ -31,7 +31,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
 }
 
 # ------------------------------
-# Encryption
+# Block Public Access
 # ------------------------------
 
 resource "aws_s3_bucket_public_access_block" "this" {
