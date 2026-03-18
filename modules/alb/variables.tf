@@ -13,10 +13,10 @@ variable "subnet_ids" {
   type        = list(string)
 }
 
-variable "instance_id" {
-  description = "EC2 instance to attach"
-  type        = string
-}
+#variable "instance_id" {
+#  description = "EC2 instance to attach"
+#  type        = string
+#}
 
 variable "tags" {
   type    = map(string)

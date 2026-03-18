@@ -26,17 +26,19 @@ module "vpc" {
 }
 
 # ------------------------------
-# EC2 Module
+# ASG Module 
 # ------------------------------
-module "ec2" {
-  source = "../../modules/ec2"
+module "asg" {
+  source = "../../modules/asg"
 
-  instance_name = "hms-ec2-demo"
+  name = "hms-asg"
 
-  ami_id = "ami-0c02fb55956c7d316" # Amazon Linux 2 (us-east-1)
+  ami_id = "ami-0c02fb55956c7d316"
 
-  subnet_id = module.vpc.public_subnet_ids[0]
-  vpc_id    = module.vpc.vpc_id
+  subnet_ids = module.vpc.public_subnet_ids
+  vpc_id     = module.vpc.vpc_id
+
+  target_group_arn = module.alb.target_group_arn
 
   tags = {
     Project = "terraform-modules"
@@ -49,10 +51,10 @@ module "ec2" {
 module "alb" {
   source = "../../modules/alb"
 
-  name        = "hms-alb"
-  vpc_id      = module.vpc.vpc_id
-  subnet_ids  = module.vpc.public_subnet_ids
-  instance_id = module.ec2.instance_id
+  name       = "hms-alb"
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.public_subnet_ids
+  #instance_id = module.ec2.instance_id
 
   tags = {
     Project = "terraform-modules"
