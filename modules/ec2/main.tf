@@ -2,8 +2,8 @@
 # Security Group
 # ------------------------------
 resource "aws_security_group" "this" {
-  name_prefix   = "${var.instance_name}-sg-"
-  vpc_id = var.vpc_id
+  name_prefix = "${var.instance_name}-sg-"
+  vpc_id      = var.vpc_id
 
   # HTTP access (for web server later)
   ingress {
@@ -57,6 +57,17 @@ resource "aws_iam_instance_profile" "this" {
 resource "aws_instance" "this" {
   ami           = var.ami_id
   instance_type = var.instance_type
+
+  user_data = <<-EOF
+  #!/bin/bash
+  yum update -y
+  yum install -y httpd
+
+  systemctl start httpd
+  systemctl enable httpd
+
+  echo "<h1>Heath's Terraform Web Server</h1>" > /var/www/html/index.html
+  EOF
 
   subnet_id                   = var.subnet_id
   vpc_security_group_ids      = [aws_security_group.this.id]
