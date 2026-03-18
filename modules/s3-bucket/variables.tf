@@ -29,3 +29,20 @@ variable "lifecycle_rules" {
     storage_class   = string
   }))
 }
+
+variable "enable_kms_encryption" {
+  description = "Enable KMS-based encryption"
+  type        = bool
+  default     = false
+}
+
+variable "kms_key_arn" {
+  description = "KMS Key ARN for encryption (required if enable_kms_encryption is true)"
+  type        = string
+  default     = null
+
+  validation {
+    condition     = var.enable_kms_encryption == false || (var.kms_key_arn != null && length(var.kms_key_arn) > 0)
+    error_message = "kms_key_arn must be provided when enable_kms_encryption is true."
+  }
+}

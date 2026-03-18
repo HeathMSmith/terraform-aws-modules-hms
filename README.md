@@ -11,6 +11,8 @@ Creates an AWS S3 bucket with configurable name and optional tags.
 | enable_versioning  | bool         | Enable versioning                          | No       |
 | enable_encryption  | bool         | Enable SSE-S3 encryption                   | No       |
 | lifecycle_rules    | list(object) | Lifecycle transition rules-cost optimization | No |
+| enable_kms_encryption | bool   | Enable KMS encryption instead of SSE-S3 | No |
+| kms_key_arn           | string | KMS Key ARN for encryption              | No |
 
 ## Outputs
 

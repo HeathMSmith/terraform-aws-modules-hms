@@ -25,5 +25,7 @@ module "s3_bucket" {
       storage_class   = "GLACIER"
     }
   ]
+  enable_kms_encryption = false
+  kms_key_arn           = "<your-kms-key-arn>"
 }
 

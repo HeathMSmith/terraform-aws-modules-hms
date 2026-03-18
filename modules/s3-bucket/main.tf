@@ -16,7 +16,7 @@ resource "aws_s3_bucket_versioning" "this" {
 }
 
 # ------------------------------
-# Encryption
+# Encryption (SSE-S3 or KMS)
 # ------------------------------
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
@@ -25,7 +25,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "this" {
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      sse_algorithm     = var.enable_kms_encryption ? "aws:kms" : "AES256"
+      kms_master_key_id = var.enable_kms_encryption ? var.kms_key_arn : null
     }
   }
 }
