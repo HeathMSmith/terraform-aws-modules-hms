@@ -15,7 +15,7 @@ variable "subnet_ids" {
 
 variable "instance_id" {
   description = "EC2 instance to attach"
-  type        = map(string)
+  type        = string
 }
 
 variable "tags" {
