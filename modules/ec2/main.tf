@@ -2,7 +2,7 @@
 # Security Group
 # ------------------------------
 resource "aws_security_group" "this" {
-  name   = "${var.instance_name}-sg"
+  name_prefix   = "${var.instance_name}-sg-"
   vpc_id = var.vpc_id
 
   # HTTP access (for web server later)
@@ -59,11 +59,16 @@ resource "aws_instance" "this" {
   instance_type = var.instance_type
 
   subnet_id                   = var.subnet_id
-  vpc_security_group_ids      = [aws_security_group.this.name]
+  vpc_security_group_ids      = [aws_security_group.this.id]
   iam_instance_profile        = aws_iam_instance_profile.this.name
   associate_public_ip_address = true
 
   tags = merge(var.tags, {
     Name = var.instance_name
   })
+
+  depends_on = [
+    aws_security_group.this,
+    aws_iam_instance_profile.this
+  ]
 }
