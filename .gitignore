@@ -1,0 +1,38 @@
+# ------------------------------
+# Terraform
+# ------------------------------
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfplan
+
+# Terraform CLI config
+.terraformrc
+terraform.rc
+
+# ------------------------------
+# Variables / Secrets
+# ------------------------------
+*.tfvars
+*.tfvars.json
+
+# ------------------------------
+# Logs
+# ------------------------------
+*.log
+
+# ------------------------------
+# OS / Editor
+# ------------------------------
+.DS_Store
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# ------------------------------
+# Misc
+# ------------------------------
+*.backup
+*.tmp
