@@ -55,7 +55,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
 
     content {
       id     = rule.value.id
-      status = rule.value.enabled
+      status = rule.value.enabled ? "Enabled" : "Disabled"
 
       transition {
         days          = rule.value.transition_days

@@ -16,7 +16,7 @@ module "s3_bucket" {
       id              = "transition-to-ia"
       enabled         = true
       transition_days = 30
-      storage_class   = "Standard_IA"
+      storage_class   = "STANDARD_IA"
     },
     {
       id              = "transition-to-glacier"
