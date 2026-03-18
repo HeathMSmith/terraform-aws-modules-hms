@@ -64,6 +64,6 @@ resource "aws_instance" "this" {
   associate_public_ip_address = true
 
   tags = merge(var.tags, {
-    Name = var.instance.name
+    Name = var.instance_name
   })
 }
