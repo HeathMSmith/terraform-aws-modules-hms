@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 # ------------------------------
-# VPC Module
+# VPC
 # ------------------------------
 module "vpc" {
   source = "../../modules/vpc"
@@ -26,23 +26,13 @@ module "vpc" {
 }
 
 # ------------------------------
-# ASG Module 
+# ACM (SSL Certificate)
 # ------------------------------
-module "asg" {
-  source = "../../modules/asg"
+module "acm" {
+  source = "../../modules/acm"
 
-  name = "hms-asg"
-
-  ami_id = "ami-0c02fb55956c7d316"
-
-  subnet_ids = module.vpc.public_subnet_ids
-  vpc_id     = module.vpc.vpc_id
-
-  target_group_arn = module.alb.target_group_arn
-
-  tags = {
-    Project = "terraform-modules"
-  }
+  domain_name = "hmsdev.click"          # 🔁 CHANGE THIS
+  zone_id     = "Z01454722VUNO8SQZYLZ8" # 🔁 CHANGE THIS
 }
 
 # ------------------------------
@@ -54,7 +44,29 @@ module "alb" {
   name       = "hms-alb"
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.public_subnet_ids
-  #instance_id = module.ec2.instance_id
+
+  certificate_arn = module.acm.certificate_arn
+  domain_name     = "hmsdev.click"
+  zone_id         = "Z01454722VUNO8SQZYLZ8"
+  tags = {
+    Project = "terraform-modules"
+  }
+}
+
+# ------------------------------
+# Auto Scaling Group
+# ------------------------------
+module "asg" {
+  source = "../../modules/asg"
+
+  name = "hms-asg"
+
+  ami_id = "ami-0c02fb55956c7d316" # Amazon Linux 2 (us-east-1)
+
+  subnet_ids = module.vpc.public_subnet_ids
+  vpc_id     = module.vpc.vpc_id
+
+  target_group_arn = module.alb.target_group_arn
 
   tags = {
     Project = "terraform-modules"
