@@ -21,8 +21,13 @@ resource "aws_launch_template" "this" {
   name_prefix   = "${var.name}-lt-"
   image_id      = var.ami_id
   instance_type = var.instance_type
-
-  vpc_security_group_ids = [aws_security_group.this.id]
+  iam_instance_profile {
+    name = aws_iam_instance_profile.this.name
+  }
+  network_interfaces {
+    associate_public_ip_address = false
+    security_groups             = [aws_security_group.this.id]
+  }
 
   user_data = base64encode(
     <<-EOF
@@ -63,5 +68,30 @@ resource "aws_autoscaling_group" "this" {
     value               = var.name
     propagate_at_launch = true
   }
+}
+
+resource "aws_iam_role" "this" {
+  name = "${var.name}-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Service = "ec2.amazonaws.com"
+      }
+      Action = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ssm" {
+  role       = aws_iam_role.this.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_instance_profile" "this" {
+  name = "${var.name}-profile"
+  role = aws_iam_role.this.name
 }
   

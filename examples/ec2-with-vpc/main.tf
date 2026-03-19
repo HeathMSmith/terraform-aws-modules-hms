@@ -15,6 +15,11 @@ module "vpc" {
     "10.0.2.0/24"
   ]
 
+  private_subnet_cidrs = [
+    "10.0.10.0/24",
+    "10.0.11.0/24"
+  ]
+
   availability_zones = [
     "us-east-1a",
     "us-east-1b"
@@ -63,7 +68,7 @@ module "asg" {
 
   ami_id = "ami-0c02fb55956c7d316" # Amazon Linux 2 (us-east-1)
 
-  subnet_ids = module.vpc.public_subnet_ids
+  subnet_ids = module.vpc.private_subnet_ids
   vpc_id     = module.vpc.vpc_id
 
   target_group_arn = module.alb.target_group_arn
