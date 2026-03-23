@@ -32,13 +32,13 @@ resource "aws_launch_template" "this" {
   user_data = base64encode(
     <<-EOF
     #!/bin/bash
-    yum update -y
-    yum install -y httpd
 
-    systemctl start httpd
-    systemctl enable httpd
+    mkdir -p /var/www/html
 
-    echo "<h1>ASG Web Server</h1>" > /var/www/html/index.html
+    echo "<h1>ASG Web Server 🚀</h1>" > /var/www/html/index.html
+
+    # Use Python built-in HTTP server (already installed)
+    nohup python3 -m http.server 80 --directory /var/www/html &
   EOF
   )
 
