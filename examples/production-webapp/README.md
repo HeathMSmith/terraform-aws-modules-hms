@@ -1,104 +1,107 @@
-# 🚀 Production Web Application on AWS (Terraform)
+# Production Web Application on AWS (Terraform)
 
-## 📌 Overview
+## Overview
 
-This project provisions a production-style, highly available web application infrastructure on AWS using Terraform.
+This project provisions a production-style web application environment in AWS using Terraform. The goal was to build something that reflects how real systems are designed—secure by default, scalable, and cost-conscious.
 
-It demonstrates secure, scalable, and cost-aware architecture patterns aligned with real-world cloud engineering practices.
+Instead of just getting something working, I focused on making intentional design decisions and validating them along the way (load balancing, scaling, and private connectivity).
 
 ---
 
-## 🧱 Architecture
+## Architecture
 
-This environment deploys a fully private, load-balanced web application using:
+This setup includes:
 
-- Multi-AZ VPC
-- Public subnets for Application Load Balancer (ALB)
+- A custom VPC across two availability zones
+- Public subnets for the Application Load Balancer (ALB)
 - Private subnets for EC2 instances (no public IPs)
-- Auto Scaling Group (ASG) for compute layer
-- Application Load Balancer with HTTPS (ACM)
+- Auto Scaling Group (ASG) for resilience and scaling
+- HTTPS via AWS Certificate Manager (ACM)
 - Route53 for DNS
 - AWS Systems Manager (SSM) for instance access
-- VPC Interface Endpoints (no NAT required)
+- VPC Interface Endpoints for private AWS service connectivity
 
 ---
 
-## 🖼️ Architecture Diagram
+## Architecture Diagram
 
 ![Architecture](./architecture.png)
 
 ---
 
-## 🔐 Security Design
+## Key Design Decisions
 
-- EC2 instances are deployed in private subnets with no public IPs
-- No SSH access is allowed
-- Access is managed via AWS Systems Manager (SSM)
-- Security groups enforce least-privilege access:
-  - ALB allows HTTP/HTTPS from the internet
-  - EC2 instances only accept traffic from the ALB
-- No direct inbound access to compute layer
+### Private Compute (No Public Access)
 
----
+All EC2 instances run in private subnets with no public IPs. There is no SSH access. Instead, I used AWS Systems Manager (SSM) for secure, auditable access.
 
-## 🌐 HTTPS Configuration
+### No NAT Gateway
 
-- TLS certificates are provisioned using AWS Certificate Manager (ACM)
-- DNS validation is automated via Route53
-- HTTP traffic is automatically redirected to HTTPS
+I initially considered using a NAT Gateway for outbound access, but chose not to in order to reduce cost and simplify the design. Instead, I implemented VPC interface endpoints for SSM so instances can communicate with AWS services privately.
 
----
+### Security Group Design
 
-## ⚡ Scalability
+- The ALB allows inbound HTTP/HTTPS from the internet
+- EC2 instances only allow inbound traffic from the ALB (not from the internet)
+- This enforces a clear separation between public and private layers
 
-- Auto Scaling Group dynamically adjusts capacity
-- Target tracking policy based on CPU utilization
-- Load balancer distributes traffic across instances
+### HTTPS Everywhere
+
+TLS certificates are provisioned using ACM and validated via Route53. HTTP traffic is redirected to HTTPS at the load balancer.
 
 ---
 
-## 🔐 Private Connectivity Design (Key Feature)
+## Scalability
 
-This architecture operates entirely within private subnets without requiring outbound internet access.
+The application is backed by an Auto Scaling Group using a target tracking policy based on CPU utilization.
 
-- No NAT Gateway is used
-- AWS Systems Manager (SSM) access is enabled via VPC Interface Endpoints
-- Private DNS is enabled for seamless AWS service resolution
-- All communication with AWS services remains within the VPC
-
----
-
-## 💰 Cost Optimization
-
-- Eliminates NAT Gateway (~$30/month savings)
-- Uses VPC Interface Endpoints for AWS service access
-- Minimal always-on infrastructure footprint
+To validate this, I:
+- Generated artificial CPU load on an instance
+- Observed CloudWatch metrics
+- Confirmed that a new instance launched automatically
+- Verified that traffic was distributed across instances
 
 ---
 
-## 🛠️ Deployment Instructions
+## Load Balancing Validation
 
-### 1. Initialize Terraform
+To confirm the ALB was distributing traffic correctly, I sent multiple requests and verified responses came from different instances (based on hostname output).
+
+---
+
+## Private Connectivity (SSM)
+
+SSM access is enabled using VPC interface endpoints:
+
+- com.amazonaws.us-east-1.ssm
+- com.amazonaws.us-east-1.ec2messages
+- com.amazonaws.us-east-1.ssmmessages
+
+Private DNS is enabled so instances can resolve AWS service endpoints internally without needing internet access.
+
+---
+
+## Cost Considerations
+
+- No NAT Gateway (avoids unnecessary monthly cost)
+- Minimal always-on infrastructure
+- Uses managed services where appropriate
+
+---
+
+## Deployment
+
+From the `examples/production-webapp` directory:
 
 ```bash
 terraform init
-```
-
-### 2. Review Execution Plan
-
-```bash
 terraform plan
-```
-
-### 3. Apply Infrastructure
-
-```bash
 terraform apply
 ```
 
 ---
 
-## 📥 Inputs
+## Inputs
 
 Example `terraform.tfvars`:
 
@@ -110,59 +113,13 @@ zone_id     = "ZXXXXXXXXXXXX"
 
 ---
 
-## 📤 Outputs
+## Outputs
 
-- ALB DNS name (entry point to application)
-
----
-
-## 🧪 Testing
-
-### Verify Application
-
-- Open the ALB DNS name in a browser
-- Confirm HTTPS is working
-- Page displays instance hostname and timestamp
+- ALB DNS name (entry point to the application)
 
 ---
 
-### Test Load Balancing
-
-```bash
-for i in {1..10}; do curl http://<alb-dns>; done
-```
-
-Verify responses come from multiple instances.
-
----
-
-### Test Auto Scaling
-
-1. Connect to instance via SSM
-2. Generate CPU load:
-
-```bash
-yes > /dev/null &
-yes > /dev/null &
-```
-
-3. Observe:
-- CPU utilization increase in CloudWatch
-- New instance launched by ASG
-
----
-
-## 🧠 Key Design Decisions
-
-- Used private subnets for compute to reduce attack surface
-- Eliminated SSH in favor of SSM Session Manager
-- Avoided NAT Gateway to reduce cost and simplify architecture
-- Enabled private AWS service access using VPC Interface Endpoints
-- Implemented modular Terraform structure for reusability
-
----
-
-## 🧩 Project Structure
+## Project Structure
 
 ```
 modules/
@@ -177,21 +134,27 @@ examples/
 
 ---
 
-## 🎯 Purpose
+## What This Project Demonstrates
 
-This project demonstrates:
-
-- Infrastructure as Code (Terraform)
-- AWS networking and security best practices
-- Scalable and highly available system design
-- Cost-aware cloud architecture
-- Real-world debugging and operational validation
+- Infrastructure as Code using Terraform
+- Secure AWS networking patterns
+- Load balancing and auto scaling
+- Private service connectivity without NAT
+- Real-world debugging and validation
 
 ---
 
-## 🚀 Next Steps (Potential Enhancements)
+## Possible Improvements
+
+If I were to extend this further:
 
 - Add CloudWatch alarms and dashboards
-- Integrate CI/CD pipeline (GitHub Actions)
-- Add centralized logging (CloudWatch Logs / S3)
-- Introduce multi-environment support (dev/stage/prod)
+- Introduce CI/CD (GitHub Actions)
+- Add centralized logging (S3 / CloudWatch Logs)
+- Expand to multiple environments (dev/stage/prod)
+
+---
+
+## Summary
+
+This project was built to reflect how I would approach a real-world AWS deployment—prioritizing security, simplicity, and cost efficiency while still validating that everything works under load.
