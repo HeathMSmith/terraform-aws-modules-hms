@@ -1,0 +1,3 @@
+ami_id      = "ami-xxxxxxxx"
+domain_name = "example.com"
+zone_id     = "ZXXXXXXXX"

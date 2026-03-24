@@ -5,9 +5,8 @@ resource "aws_security_group" "this" {
   ingress {
     from_port       = 80
     to_port         = 80
-    protocol        = "tcp"
-    security_groups = [] #allow ALB later if needed
-    cidr_blocks     = ["0.0.0.0/0"]
+    protocol        = "tcp" #allow ALB later if needed
+    security_groups = [var.alb_security_group_id]
   }
   egress {
     from_port   = 0
@@ -15,6 +14,7 @@ resource "aws_security_group" "this" {
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+  tags = var.tags
 }
 
 resource "aws_launch_template" "this" {
@@ -35,17 +35,24 @@ resource "aws_launch_template" "this" {
 
     mkdir -p /var/www/html
 
-    echo "<h1>ASG Web Server 🚀</h1>" > /var/www/html/index.html
+    cat <<EOT > /var/www/html/index.html
+    <h1>Production Web App 🚀</h1>
+    <p>Instance: $(hostname)</p>
+    <p>Time: $(date)</p>
+    EOT
 
-    # Use Python built-in HTTP server (already installed)
-    nohup python3 -m http.server 80 --directory /var/www/html &
-  EOF
+    cat <<EOT > /var/www/html/health
+    healthy
+    EOT
+
+    cd /var/www/html
+    nohup python3 -m http.server 80 &
+    EOF
   )
 
   tag_specifications {
     resource_type = "instance"
-
-    tags = var.tags
+    tags          = var.tags
   }
 }
 
@@ -67,6 +74,20 @@ resource "aws_autoscaling_group" "this" {
     key                 = "Name"
     value               = var.name
     propagate_at_launch = true
+  }
+
+}
+
+resource "aws_autoscaling_policy" "cpu" {
+  name                   = "${var.name}-cpu-policy"
+  autoscaling_group_name = aws_autoscaling_group.this.name
+  policy_type            = "TargetTrackingScaling"
+
+  target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+    target_value = 60.0
   }
 }
 
@@ -91,7 +112,7 @@ resource "aws_iam_role_policy_attachment" "ssm" {
 }
 
 resource "aws_iam_instance_profile" "this" {
-  name = "${var.name}-profile"
+  name = "${var.name}-${var.environment}"
   role = aws_iam_role.this.name
 }
   

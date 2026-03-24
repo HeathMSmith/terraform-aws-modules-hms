@@ -146,6 +146,7 @@ resource "aws_vpc_endpoint" "ssm" {
 
   subnet_ids         = aws_subnet.private[*].id
   security_group_ids = [aws_security_group.vpce.id]
+  private_dns_enabled = true
 }
 
 resource "aws_vpc_endpoint" "ssmmessages" {
@@ -155,6 +156,7 @@ resource "aws_vpc_endpoint" "ssmmessages" {
 
   subnet_ids         = aws_subnet.private[*].id
   security_group_ids = [aws_security_group.vpce.id]
+  private_dns_enabled = true
 }
 
 resource "aws_vpc_endpoint" "ec2messages" {
@@ -164,4 +166,5 @@ resource "aws_vpc_endpoint" "ec2messages" {
 
   subnet_ids         = aws_subnet.private[*].id
   security_group_ids = [aws_security_group.vpce.id]
+  private_dns_enabled = true
 }

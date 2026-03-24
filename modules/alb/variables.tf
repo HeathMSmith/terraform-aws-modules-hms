@@ -35,3 +35,7 @@ variable "domain_name" {
 variable "zone_id" {
   type = string
 }
+variable "allowed_cidr_blocks" {
+  type    = list(string)
+  default = ["0.0.0.0/0"]
+}
