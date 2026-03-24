@@ -36,7 +36,7 @@ resource "aws_launch_template" "this" {
     mkdir -p /var/www/html
 
     cat <<EOT > /var/www/html/index.html
-    <h1>Production Web App 🚀</h1>
+    <h1>Production Web App</h1>
     <p>Instance: $(hostname)</p>
     <p>Time: $(date)</p>
     EOT

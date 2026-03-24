@@ -55,10 +55,11 @@ TLS certificates are provisioned using ACM and validated via Route53. HTTP traff
 The application is backed by an Auto Scaling Group using a target tracking policy based on CPU utilization.
 
 To validate this, I:
-- Generated artificial CPU load on an instance
+- Generated artificial CPU load on an instance by running command: "yes > /dev/null" & for scale out event
 - Observed CloudWatch metrics
 - Confirmed that a new instance launched automatically
 - Verified that traffic was distributed across instances
+- Once the scale out event was validated, I ran the command killall yes to test scaling in
 
 ---
 
@@ -116,6 +117,22 @@ zone_id     = "ZXXXXXXXXXXXX"
 
 - ALB DNS name (entry point to the application)
 
+## 🖼️ Demo
+
+### Application Output
+
+The application returns dynamic instance metadata, confirming that requests are being served by live EC2 instances:
+
+![Application Output](./assets/ProdWebappDemo1.png)
+
+---
+
+### Load Balancing Verification
+
+Multiple requests were issued to confirm that traffic is distributed across instances:
+
+![Load Balancing](./assets/ProdWebappDemo2.png)
+
 ---
 
 ## Project Structure
@@ -157,3 +174,18 @@ If I were to extend this further:
 ## Summary
 
 This project was built to reflect how I would approach a real-world AWS deployment—prioritizing security, simplicity, and cost efficiency while still validating that everything works under load.
+
+
+## Challenges & Lessons Learned
+
+One of the main challenges was enabling SSM access in a fully private VPC without using a NAT Gateway.
+
+Initially, instances were not appearing in Fleet Manager because they could not reach the public SSM endpoints. This was resolved by:
+
+- Creating VPC interface endpoints for SSM, EC2Messages, and SSMMessages
+- Enabling private DNS on each endpoint
+- Adjusting security group rules to allow HTTPS traffic from the EC2 instances to the endpoints
+
+Another issue encountered was a 502 error from the ALB, which was traced back to the application not being available on the instances due to lack of internet access. This was resolved by modifying the user_data script to run a lightweight Python web server instead of installing Apache.
+
+These issues reinforced the importance of understanding AWS networking, DNS behavior, and dependency management in private environments.
