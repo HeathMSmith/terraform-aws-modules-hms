@@ -117,7 +117,7 @@ zone_id     = "ZXXXXXXXXXXXX"
 
 - ALB DNS name (entry point to the application)
 
-## 🖼️ Demo
+## Demo
 
 ### Application Output
 
