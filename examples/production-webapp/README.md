@@ -25,9 +25,8 @@ This setup includes:
 
 ## Architecture Diagram
 
-![Architecture](./architecture.png)
+![Architecture](./Production_Webapp.png)
 
----
 
 ## Key Design Decisions
 
