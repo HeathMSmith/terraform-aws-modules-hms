@@ -14,6 +14,8 @@ Instead of just getting something working, I focused on making intentional desig
 
 ## Architecture
 
+This design prioritizes security, cost efficiency, and operational simplicity while maintaining full scalability.
+
 This setup includes:
 
 - A custom VPC across two availability zones
@@ -41,7 +43,6 @@ The application returns dynamic instance metadata, confirming that requests are 
 
 ![Application Output](./assets/ProdWebappDemo1.png)
 
-```md
 Responses include instance hostname and timestamp to clearly demonstrate that requests are being served by different instances.
 
 ---
@@ -53,6 +54,8 @@ Multiple requests were issued to confirm that traffic is distributed across inst
 ![Load Balancing](./assets/ProdWebappDemo2.png)
 
 This confirms that traffic is being distributed across instances managed by the Auto Scaling Group.
+
+---
 
 ## Key Design Decisions
 
@@ -78,14 +81,14 @@ TLS certificates are provisioned using ACM and validated via Route53. HTTP traff
 
 ## Scalability
 
-The application is backed by an Auto Scaling Group using a target tracking policy based on CPU utilization.
+The application is backed by an Auto Scaling Group using a target tracking policy based on CPU utilization. This approach was used to simulate real-world load conditions in a controlled environment.
 
 To validate this, I:
 - Generated CPU load using a simple stress command (yes > /dev/null &) to trigger a scale-out event
 - Observed CloudWatch metrics
 - Confirmed that a new instance launched automatically
 - Verified that traffic was distributed across instances
-- Stopped the load using: killall yes to trigger scale-in event
+- Stopped the load using: killall yes, which triggered a scale-in event
 
 ---
 
