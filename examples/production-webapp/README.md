@@ -7,6 +7,10 @@ This project provisions a production-style web application environment in AWS us
 Instead of just getting something working, I focused on making intentional design decisions and validating them along the way (load balancing, scaling, and private connectivity).
 
 ---
+## Requirements
+
+- Terraform >= 1.5
+- AWS CLI configured
 
 ## Architecture
 
@@ -27,6 +31,28 @@ This setup includes:
 
 ![Architecture](./assets/Production_Webapp.png)
 
+This architecture is designed to run entirely in private subnets with no NAT Gateway, using VPC interface endpoints for AWS service access.
+
+## Demo
+
+### Application Output
+
+The application returns dynamic instance metadata, confirming that requests are being served by live EC2 instances:
+
+![Application Output](./assets/ProdWebappDemo1.png)
+
+```md
+Responses include instance hostname and timestamp to clearly demonstrate that requests are being served by different instances.
+
+---
+
+### Load Balancing Verification
+
+Multiple requests were issued to confirm that traffic is distributed across instances:
+
+![Load Balancing](./assets/ProdWebappDemo2.png)
+
+This confirms that traffic is being distributed across instances managed by the Auto Scaling Group.
 
 ## Key Design Decisions
 
@@ -55,11 +81,11 @@ TLS certificates are provisioned using ACM and validated via Route53. HTTP traff
 The application is backed by an Auto Scaling Group using a target tracking policy based on CPU utilization.
 
 To validate this, I:
-- Generated artificial CPU load on an instance by running command: "yes > /dev/null" & for scale out event
+- Generated CPU load using a simple stress command (yes > /dev/null &) to trigger a scale-out event
 - Observed CloudWatch metrics
 - Confirmed that a new instance launched automatically
 - Verified that traffic was distributed across instances
-- Once the scale out event was validated, I ran the command killall yes to test scaling in
+- Stopped the load using: killall yes to trigger scale-in event
 
 ---
 
@@ -115,23 +141,11 @@ zone_id     = "ZXXXXXXXXXXXX"
 
 ## Outputs
 
-- ALB DNS name (entry point to the application)
+After deployment:
 
-## Demo
-
-### Application Output
-
-The application returns dynamic instance metadata, confirming that requests are being served by live EC2 instances:
-
-![Application Output](./assets/ProdWebappDemo1.png)
-
----
-
-### Load Balancing Verification
-
-Multiple requests were issued to confirm that traffic is distributed across instances:
-
-![Load Balancing](./assets/ProdWebappDemo2.png)
+```bash
+terraform output alb_dns_name
+```
 
 ---
 
