@@ -4,7 +4,7 @@ This repository contains modular Terraform configurations and multiple AWS archi
 
 ---
 
-## ⭐ Featured Project (Start Here)
+## Featured Project (Start Here)
 
 ### Production Web Application (Highly Available)
 
@@ -24,11 +24,11 @@ A production-style AWS architecture designed with security, scalability, and cos
 * Real-world validation of scaling and load balancing
 * Troubleshooting of SSM connectivity in a private VPC
 
-👉 [View Project](./examples/production-webapp)
+ [View Project](./examples/production-webapp)
 
 ---
 
-## 📚 Additional Examples
+## Additional Examples
 
 These examples demonstrate foundational AWS and Terraform concepts:
 
@@ -36,25 +36,25 @@ These examples demonstrate foundational AWS and Terraform concepts:
 
 * Basic compute deployment within a custom VPC
 * Security groups and networking fundamentals
-  👉 `examples/ec2-with-vpc`
+  `examples/ec2-with-vpc`
 
 ---
 
 ### VPC Basics
 
 * Custom VPC with subnets, route tables, and internet gateway
-  👉 `examples/vpc-basic`
+   `examples/vpc-basic`
 
 ---
 
 ### S3 Basics
 
 * Secure S3 bucket configuration with encryption and lifecycle policies
-  👉 `examples/s3-basic`
+   `examples/s3-basic`
 
 ---
 
-## 🧱 Terraform Modules
+## Terraform Modules
 
 Reusable modules used across examples:
 
@@ -65,7 +65,7 @@ Reusable modules used across examples:
 
 ---
 
-## 🎯 Purpose
+## Purpose
 
 This repository demonstrates:
 
@@ -76,7 +76,7 @@ This repository demonstrates:
 
 ---
 
-## 🧠 How to Use
+## How to Use
 
 Each example is self-contained. Navigate into any example directory and run:
 
