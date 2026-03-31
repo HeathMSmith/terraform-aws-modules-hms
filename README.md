@@ -82,5 +82,6 @@ Each example is self-contained. Navigate into any example directory and run:
 
 ```bash
 terraform init
-terraform apply
+terraform plan -out=tfplan
+terraform apply tfplan
 ```
